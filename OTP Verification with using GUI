@@ -1,0 +1,75 @@
+from email.mime.multipart import MIMEMultipart
+# multipart message is an email message that contains multiple parts.
+from email.mime.text import MIMEText
+# that represents a text message in MIME(multipurpose internet mail extension)
+import smtplib # that allows you to send emails using the simple mail transfer protocol
+import random
+import tkinter as tk
+from tkinter import messagebox
+
+class OTPVerificationSystem:
+  def __init__(self):
+    self.window=tk.Tk()
+    self.window.title("OTP Verification System")
+    self.window.geometry("400x300")
+    
+    # Email entry fields
+    tk.Label(self.window,text="Email:").grid(row=0)
+    self.email_entry=tk.Entry(self.window)
+    self.email_entry.grid(row=0,column=1)
+    
+    #otp entry fields
+    tk.Label(self.window,text="OTP:").grid(row=1)
+    self.otp_entry=tk.Entry(self.window)
+    self.otp_entry.grid(row=1,column=1)
+    
+    #send otp Button
+    tk.Button(self.window,text="send otp",command=self.send_otp).grid(row=2)
+    
+    #verify otp button
+    tk.Button(self.window,text="VErify OTP",command=self.verify_otp).grid(row=2,column=1)
+
+  def send_otp(self):
+    email=self.email_entry.get()
+    otp=str(random.randint(100000,999999))
+    self.generated_otp=otp
+    
+    #simulate sending OTP via email
+    msg=MIMEMultipart()
+    msg['From']="gurugubelli.jhansi1213@gmail.com"
+    msg['To']=email
+    msg['Subject']='OTP Verification'
+    body=f'your otp is:{otp}'
+    
+    # attaches a text body to an email msg using the email.mime module 
+    msg.attach(MIMEText(body,'plain')) # 'plain' specifies the subtype of the text
+    
+    #(Establishing an SMTP connection) connecting to the Gmail SMTP server at
+    server=smtplib.SMTP('smtp.gmail.com',587)
+    server.starttls()# Gamil Requires encryption for SMTP connection( Transport layer security)
+    server.login("gurugubelli.jhansi1213@gmail.com","akbmelmnwezxscql")      
+    text=msg.as_string()
+    # sending the mail
+    server.sendmail(msg['From'],msg['To'],text)
+    # closes the SMTP Connection
+    server.quit()
+    messagebox.showinfo("OTP Sent","OTP has been sent to your email")
+
+
+    # verification of Otp
+  def verify_otp(self):
+    user_otp=self.otp_entry.get()
+    if user_otp==self.generated_otp:
+      messagebox.showinfo("verification Success","OTP Verification Successful.")
+    else:
+      self.otp_entry.delete(0,tk.END)
+      messagebox.showerror("Access denied! Incorrect OTP. Please try again")
+      
+      
+      
+    
+  def run(self):
+    self.window.mainloop()
+if __name__=="__main__":
+  otp_system=OTPVerificationSystem()
+  otp_system.run()
